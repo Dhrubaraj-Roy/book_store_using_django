@@ -1,0 +1,126 @@
+{% extends "book_outlet/base.html" %}
+
+{% block title %}All Books - Book Outlet{% endblock %}
+
+{% block extra_head %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    .page-title {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+    .books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    .book-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .book-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+    .book-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .book-title a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    .book-title a:hover {
+        text-decoration: underline;
+    }
+    .book-author {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    .book-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.9rem;
+    }
+    .rating {
+        font-weight: 600;
+        color: var(--rating-color);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--card-bg);
+        border: 1px dashed var(--border);
+        border-radius: 0.75rem;
+    }
+    .empty-state h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-main);
+    }
+    .empty-state p {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+    .total-count {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Available Books</h1>
+        <p class="total-count">Total Books: {{ total_number_of_books }}</p>
+    </div>
+</div>
+
+{% if books %}
+    <div class="books-grid">
+        {% for book in books %}
+            <div class="book-card">
+                <div>
+                    <h2 class="book-title">
+                        <a href="{% url 'book_outlet:book-detail' book.id %}">{{ book.title }}</a>
+                    </h2>
+                    <p class="book-author">By {{ book.author|default:"Unknown Author" }}</p>
+                </div>
+                <div class="book-footer">
+                    <span class="rating">⭐ {{ book.rating }}/5</span>
+                    {% if book.is_bestselling %}
+                        <span class="badge">Bestseller</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>No books found in the database</h3>
+        <p>You can add books using the Django shell or the Django admin panel.</p>
+        <a href="/admin/" class="btn" target="_blank">Open Django Admin</a>
+    </div>
+{% endif %}
+{% endblock %}

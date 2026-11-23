@@ -1,0 +1,124 @@
+{% extends "book_outlet/base.html" %}
+
+{% block title %}{{ book.title }} - Book Details{% endblock %}
+
+{% block extra_head %}
+<style>
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+    }
+    .back-link:hover {
+        color: var(--primary);
+    }
+    .detail-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 2.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .book-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 0.5rem;
+    }
+    .book-author {
+        font-size: 1.15rem;
+        color: var(--text-muted);
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    .info-box {
+        background-color: var(--bg);
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+        border: 1px solid var(--border);
+    }
+    .info-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    .info-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+    .rating-val {
+        color: var(--rating-color);
+    }
+    .actions {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'book_outlet:index' %}" class="back-link">&larr; Back to all books</a>
+
+<div class="detail-card">
+    <div class="detail-header">
+        <div>
+            <h1 class="book-title">{{ book.title }}</h1>
+            <p class="book-author">Written by <strong>{{ book.author|default:"Unknown Author" }}</strong></p>
+        </div>
+        {% if book.is_bestselling %}
+            <span class="badge" style="font-size: 0.85rem; padding: 0.35rem 0.85rem;">★ Bestseller</span>
+        {% endif %}
+    </div>
+
+    <div class="info-grid">
+        <div class="info-box">
+            <div class="info-label">Title</div>
+            <div class="info-value">{{ book.title }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">Author</div>
+            <div class="info-value">{{ book.author|default:"Unknown" }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">Rating</div>
+            <div class="info-value rating-val">⭐ {{ book.rating }} / 5</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">Bestseller Status</div>
+            <div class="info-value">
+                {% if book.is_bestselling %}
+                    Yes (True)
+                {% else %}
+                    No (False)
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'book_outlet:index' %}" class="btn btn-outline">Back to Catalog</a>
+    </div>
+</div>
+{% endblock %}
