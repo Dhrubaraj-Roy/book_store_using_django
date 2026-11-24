@@ -5,6 +5,6 @@ app_name = 'book_outlet'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('<int:id>/', views.book_detail, name='book-detail'),
-    path('<int:id>', views.book_detail, name='book-detail-noslash'),
+    path('<slug:slug>/', views.book_detail, name='book-detail'),
+    path('<slug:slug>', views.book_detail, name='book-detail-noslash'),
 ]

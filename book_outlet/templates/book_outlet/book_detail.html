@@ -98,6 +98,10 @@
             <div class="info-value">{{ book.title }}</div>
         </div>
         <div class="info-box">
+            <div class="info-label">Slug</div>
+            <div class="info-value" style="font-size: 1rem; font-family: monospace; word-break: break-all;">{{ book.slug }}</div>
+        </div>
+        <div class="info-box">
             <div class="info-label">Author</div>
             <div class="info-value">{{ book.author|default:"Unknown" }}</div>
         </div>

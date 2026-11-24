@@ -1,21 +1,27 @@
 # Book Store Using Django
 
-A full-featured Django project containing two dedicated applications:
-- **`book_outlet`**: Outlets catalog management, `Book` model with rating validators, Django Admin integration, and responsive HTML templates.
-- **`book_store`**: Primary store services, catalog routing, and modular expansion.
+A Django project featuring the **`book_outlet`** application:
+- **`book_outlet`**: Outlets catalog management, `Book` model with rating validators, automatic slug generation (`...harry-potter-id`), Django Admin integration, and responsive HTML templates.
 
 ---
 
 ## Features
 
-- **Modular Architecture**: Separate apps for `book_outlet` and `book_store` registered in `INSTALLED_APPS`.
-- **Database Model**: `Book` model with `title`, `rating` (1–5 scale with `MinValueValidator` and `MaxValueValidator`), `author`, and `is_bestselling` (boolean flag with `@property best_selling` alias).
-- **Django Admin Integration**: `BookAdmin` with custom `list_display` (`title`, `author`, `rating`, `is_bestselling`).
+- **Database Models & Relationships**:
+  - `Author`: `first_name`, `last_name`, and helper method `full_name()`.
+  - `Book`: `title`, `rating` (1–5 scale with `MinValueValidator` and `MaxValueValidator`), `author` (`models.ForeignKey(Author, on_delete=models.CASCADE, null=True)`), `is_bestselling` (boolean flag with `@property best_selling` alias), and `slug` (`models.SlugField(blank=True, null=False)`).
+  - **One-to-Many Relationship**: Books reference authors via ForeignKey. Access books through reverse relation (`author.book_set.all()`).
+  - **Cascade Deletion**: When an author is deleted, all their associated books are automatically removed via `on_delete=models.CASCADE`.
+- **Automatic Slug Generation**: Automatically slugifies book titles with unique ID suffixes (e.g. `harry-potter-1`) for clean and unique URLs.
+- **Django Admin Integration**: `BookAdmin` and `AuthorAdmin` registered with custom `list_display` and `list_filter`.
+- **Automated Tests**: Unit tests covering author string methods, book foreign key links, cascade deletion, and `null=True` support.
 - **Template Namespacing**: Clean templates stored under `book_outlet/templates/book_outlet/`:
   - `base.html`: Common layout with modern responsive CSS, header navigation, and footer.
   - `index.html`: Catalog overview listing all books with star ratings, author info, and bestseller badges.
-  - `book_detail.html`: Detailed view of an individual book showing all fields with navigation controls.
-- **Clean URL Routing**: Root path (`''`) serves the book list view directly.
+  - `book_detail.html`: Detailed view of an individual book showing title, slug, rating, author, and bestseller status.
+- **Clean URL Routing**:
+  - Root path (`''`): Book list catalog.
+  - Slug path (`/<slug:slug>/`): Book detail view (e.g. `/harry-potter-1/`).
 
 ---
 
@@ -27,53 +33,38 @@ book_store_using_django/
 ├── requirements.txt
 ├── .gitignore
 ├── README.md
-├── book_store_project/          # Main project configuration package
+├── book_store/                  # Main project configuration package
 │   ├── __init__.py
 │   ├── asgi.py
-│   ├── settings.py              # INSTALLED_APPS, TEMPLATES, database settings
+│   ├── settings.py              # Settings with book_outlet registered
 │   ├── urls.py                  # Root URLconf mapping to book_outlet.urls
 │   └── wsgi.py
-├── book_outlet/                 # Book Outlet application
-│   ├── __init__.py
-│   ├── admin.py                 # Admin registration with BookAdmin
-│   ├── apps.py                  # BookOutletConfig
-│   ├── migrations/              # Database migration files
-│   │   ├── 0001_initial.py
-│   │   └── __init__.py
-│   ├── models.py                # Book model
-│   ├── templates/               # Namespaced templates
-│   │   └── book_outlet/
-│   │       ├── base.html        # Base skeleton & styles
-│   │       ├── index.html       # Book catalog list
-│   │       └── book_detail.html # Book details view
-│   ├── tests.py
-│   ├── urls.py                  # App routes ('', '<int:id>/')
-│   └── views.py                 # index & book_detail views
-└── book_store/                  # Book Store application
+└── book_outlet/                 # Book Outlet application
     ├── __init__.py
-    ├── admin.py
-    ├── apps.py                  # BookStoreConfig
-    ├── migrations/
-    ├── models.py
-    ├── tests.py
-    ├── urls.py
-    └── views.py
+    ├── admin.py                 # Admin registration with BookAdmin & AuthorAdmin
+    ├── apps.py                  # BookOutletConfig
+    ├── migrations/              # Database migration files
+    │   ├── 0001_initial.py
+    │   ├── 0002_book_slug.py    # Slug field migration
+    │   └── 0003_author_alter_book_author.py # Author model & ForeignKey migration
+    ├── models.py                # Author & Book models (Foreign key & slug save override)
+    ├── templates/               # Namespaced templates
+    │   └── book_outlet/
+    │       ├── base.html        # Base layout & styling
+    │       ├── index.html       # Book catalog list
+    │       └── book_detail.html # Book details view with slug
+    ├── tests.py                 # Unit tests for models & relationships
+    ├── urls.py                  # App routes ('', '<slug:slug>/')
+    └── views.py                 # index & book_detail views
 ```
 
 ---
 
 ## Setup & Local Development
 
-### 1. Clone & Set Up the Environment
+### 1. Activate Environment & Install Dependencies
 ```bash
-git clone https://github.com/Dhrubarajroy/book_store_using_django.git
-cd book_store_using_django
-
-# Create and activate virtual environment
-python3 -m venv .venv
 source .venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -87,53 +78,56 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 4. Verify System
+### 4. Run Automated Tests
+```bash
+python manage.py test
+```
+
+### 5. Verify System
 ```bash
 python manage.py check
 ```
 
-### 5. Start the Development Server
+### 6. Start the Development Server
 ```bash
 python manage.py runserver
 ```
 
 Navigate to:
 - **Books Catalog (`/`)**: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- **Book Details (`/<id>/`)**: [http://127.0.0.1:8000/1/](http://127.0.0.1:8000/1/)
+- **Book Details (`/<slug>/`)**: [http://127.0.0.1:8000/harry-potter-1/](http://127.0.0.1:8000/harry-potter-1/)
 - **Django Admin (`/admin/`)**: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
 ---
 
 ## Interacting via Django Shell
 
-You can query, create, and inspect records interactively in the Django shell:
-
 ```bash
 python manage.py shell
 ```
 
 ```python
-from book_outlet.models import Book
+from book_outlet.models import Book, Author
 
-# 1. Query all records (table access)
+# Query all records
 books = Book.objects.all()
-print(books)
+authors = Author.objects.all()
 
-# 2. Create new book records
-b = Book(title="Harry Potter", rating=5, author="J.K. Rowling", is_bestselling=True)
+# Create an author
+author = Author.objects.create(first_name="J.K.", last_name="Rowling")
+
+# Create a new book linked via ForeignKey
+b = Book(title="Harry Potter and the Goblet of Fire", rating=5, author=author, is_bestselling=True)
 b.save()
 
-Book.objects.create(title="The Hobbit", rating=4, author="J.R.R. Tolkien", is_bestselling=True)
+# Forward relationship: access author from book
+print(b.author)            # J.K. Rowling
+print(b.slug)              # harry-potter-and-the-goblet-of-fire-<id>
+print(b.get_absolute_url()) # /harry-potter-and-the-goblet-of-fire-<id>/
 
-# 3. Access specific record attributes
-book = Book.objects.first()
-print(book.title)           # Title
-print(book.rating)          # Rating (1-5)
-print(book.author)          # Author
-print(book.is_bestselling)   # Best-selling boolean
-print(book.best_selling)    # Property alias
+# Reverse relationship: access all books by this author
+print(author.book_set.all())
 
-# 4. Filter records
-bestsellers = Book.objects.filter(is_bestselling=True)
-top_rated = Book.objects.filter(rating__gte=4)
+# Cascade deletion: deleting author automatically deletes their books
+# author.delete()
 ```

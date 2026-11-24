@@ -103,7 +103,7 @@
             <div class="book-card">
                 <div>
                     <h2 class="book-title">
-                        <a href="{% url 'book_outlet:book-detail' book.id %}">{{ book.title }}</a>
+                        <a href="{{ book.get_absolute_url }}">{{ book.title }}</a>
                     </h2>
                     <p class="book-author">By {{ book.author|default:"Unknown Author" }}</p>
                 </div>

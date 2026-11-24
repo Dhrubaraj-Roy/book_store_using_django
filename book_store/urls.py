@@ -1,8 +1,10 @@
-from django.urls import path
-from . import views
-
-app_name = 'book_store'
+"""
+URL configuration for book_store project.
+"""
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('admin/', admin.site.urls),
+    path('', include('book_outlet.urls')),
 ]
