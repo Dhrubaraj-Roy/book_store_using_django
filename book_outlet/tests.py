@@ -1,5 +1,6 @@
 from django.test import TestCase
-from .models import Book, Author
+from django.db import IntegrityError
+from .models import Book, Author, Address
 
 
 class AuthorModelTest(TestCase):
@@ -29,3 +30,26 @@ class AuthorModelTest(TestCase):
         book = Book.objects.create(title="Anonymous Work", rating=3, author=None)
         self.assertIsNone(book.author)
         self.assertTrue(Book.objects.filter(id=book.id).exists())
+
+
+class AddressModelTest(TestCase):
+    def test_address_str(self):
+        address = Address.objects.create(city="London", postal_code="SW1A 1AA", country="United Kingdom")
+        self.assertEqual(str(address), "London, SW1A 1AA, United Kingdom")
+
+    def test_author_address_one_to_one(self):
+        address = Address.objects.create(city="Oxford", postal_code="OX1 2JD", country="United Kingdom")
+        author = Author.objects.create(first_name="C.S.", last_name="Lewis", address=address)
+
+        # Forward relation
+        self.assertEqual(author.address, address)
+        # Reverse relation
+        self.assertEqual(address.author, author)
+
+    def test_address_one_to_one_uniqueness(self):
+        address = Address.objects.create(city="Edinburgh", postal_code="EH1 1YZ", country="United Kingdom")
+        Author.objects.create(first_name="Arthur", last_name="Conan Doyle", address=address)
+
+        # Attempting to assign the same address to another author should violate uniqueness
+        with self.assertRaises(IntegrityError):
+            Author.objects.create(first_name="Another", last_name="Author", address=address)
